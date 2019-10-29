@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework import viewsets, status, permissions
+from rest_framework import views, viewsets, status, permissions
 from rest_framework.permissions import IsAuthenticated
 from .models import Resume, UserDetails, User
 from .serializers import UserSerializer, LoginSerializer, UserDetailSerializer, ResumeSerializer
@@ -10,7 +10,8 @@ from rest_framework.permissions import AllowAny
 from rest_framework import generics
 from knox.models import AuthToken
 from rest_framework.parsers import FileUploadParser
-
+from resumeparser.resume_parser import ResumeParser
+import os
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
@@ -77,15 +78,24 @@ class ResumeViewSet(viewsets.ModelViewSet):
             permission_classes = [AllowAny]
         return [permission() for permission in permission_classes]
 
+src = "C:/Users/v.thiyagarajan/PycharmProjects/ResumeParsers/resumes/AkhileswarReddy_MV_CResume.pdf"
+files = os.fspath(src)
+class Parser(views.APIView):
 
-@api_view(['POST'])
-@permission_classes([IsAuthenticated,])
-def resume_view(request, resume_id):
-    user = request.user
-    print(user)
-    election = get_object_or_404(UserDetails, pk=resume_id)
-    serializer = UserDetailSerializer(data=request.data)
-    if serializer.is_valid():
-        choice = serializer.save(election=election)
-        return Response(ChoiceSerializer(choice).data, status=status.HTTP_201_CREATED)
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    def post(self, request, *args, **kwargs):
+        check = request.data.get('file')
+        print(check)
+        print(files)
+        file = str(files)
+        # file = os.fspath(str(file))
+        if file:
+            print('Extracting data from: {}'.format(file))
+            resume_parser = ResumeParser(file)
+            print(resume_parser.get_extracted_data())
+            return Response({
+                'status': True,
+                'detail': 'file uploaded successfully'})
+        else:
+            return Response({
+                'status': False,
+                'detail': 'file not uploaded '})
