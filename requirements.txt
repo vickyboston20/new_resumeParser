@@ -9,7 +9,7 @@ Django==2.2.6
 django-cors-headers==3.1.1
 django-rest-framework==0.1.0
 django-rest-knox==4.1.0
-djangorestframework==3.10.3
+djangorestframework==3.11.2
 docx2txt==0.8
 en-core-web-sm==2.2.0
 idna==2.8
